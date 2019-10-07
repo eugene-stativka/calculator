@@ -5,8 +5,8 @@ export interface ICalculatorState {
   handleDigit(digit: number): ICalculatorState
   add(): ICalculatorState
   multiply(): ICalculatorState
-  // subtract(): ICalculatorState
-  // divide(): ICalculatorState
+  subtract(): ICalculatorState
+  divide(): ICalculatorState
   calculate(): ICalculatorState
 }
 
@@ -21,6 +21,20 @@ export class OperatorPendingCalculatorState implements ICalculatorState {
     return new SecondOperandPendingCalculatorState(
       this.firstOperand,
       CommandType.Add,
+    )
+  }
+
+  subtract() {
+    return new SecondOperandPendingCalculatorState(
+      this.firstOperand,
+      CommandType.Subtract,
+    )
+  }
+
+  divide() {
+    return new SecondOperandPendingCalculatorState(
+      this.firstOperand,
+      CommandType.Divide,
     )
   }
 
@@ -54,6 +68,20 @@ export class SecondOperandPendingCalculatorState implements ICalculatorState {
     return new SecondOperandPendingCalculatorState(
       this.firstOperand,
       CommandType.Add,
+    )
+  }
+
+  subtract() {
+    return new SecondOperandPendingCalculatorState(
+      this.firstOperand,
+      CommandType.Subtract,
+    )
+  }
+
+  divide() {
+    return new SecondOperandPendingCalculatorState(
+      this.firstOperand,
+      CommandType.Divide,
     )
   }
 
@@ -94,6 +122,14 @@ export class CalculationPendingCalculatorState implements ICalculatorState {
 
   multiply() {
     return this.calculate(CommandType.Multiply)
+  }
+
+  subtract() {
+    return this.calculate(CommandType.Subtract)
+  }
+
+  divide() {
+    return this.calculate(CommandType.Divide)
   }
 
   handleDigit(digit: number) {
