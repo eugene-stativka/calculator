@@ -8,7 +8,7 @@ import {
   startWith,
 } from 'rxjs/operators'
 import { assertNever } from './helpers'
-import { Command, CommandType, KeyCode } from './types'
+import { Command, CommandType, KeyCode, OperatorType } from './types'
 import { ICalculatorState, OperatorPendingCalculatorState } from './state'
 import { ReactiveComponent } from './reactive.component'
 
@@ -38,20 +38,11 @@ export class AppComponent extends ReactiveComponent {
           case CommandType.Percent:
             return prevState
 
-          case CommandType.Divide:
-            return prevState.divide()
+          case CommandType.Operator:
+            return prevState.handleOperator(command.value)
 
           case CommandType.Digit:
             return prevState.handleDigit(command.value)
-
-          case CommandType.Multiply:
-            return prevState.multiply()
-
-          case CommandType.Subtract:
-            return prevState.subtract()
-
-          case CommandType.Add:
-            return prevState.add()
 
           case CommandType.Decimal:
             return prevState
@@ -89,7 +80,10 @@ export class AppComponent extends ReactiveComponent {
   }
 
   divide() {
-    this.command$.next({ type: CommandType.Divide })
+    this.command$.next({
+      type: CommandType.Operator,
+      value: OperatorType.Divide,
+    })
   }
 
   handleDigit(value: number) {
@@ -97,15 +91,21 @@ export class AppComponent extends ReactiveComponent {
   }
 
   multiply() {
-    this.command$.next({ type: CommandType.Multiply })
+    this.command$.next({
+      type: CommandType.Operator,
+      value: OperatorType.Multiply,
+    })
   }
 
   subtract() {
-    this.command$.next({ type: CommandType.Subtract })
+    this.command$.next({
+      type: CommandType.Operator,
+      value: OperatorType.Subtract,
+    })
   }
 
   add() {
-    this.command$.next({ type: CommandType.Add })
+    this.command$.next({ type: CommandType.Operator, value: OperatorType.Add })
   }
 
   decimal() {
