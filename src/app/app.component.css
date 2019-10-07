@@ -1,0 +1,20 @@
+main {
+  display: grid;
+  height: 100vh;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.display-value {
+  grid-column-start: 1;
+  grid-column-end: 5;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-end;
+  padding: 1rem;
+  font-size: 3em;
+}
+
+.zero {
+  grid-column-start: 1;
+  grid-column-end: 3;
+}

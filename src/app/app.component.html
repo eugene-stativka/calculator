@@ -1,0 +1,27 @@
+<main>
+  <div class="display-value">{{ state.displayValue }}</div>
+
+  <button (click)="reset()">AC</button>
+  <button (click)="toggleNumberSign()">±</button>
+  <button (click)="percent()">％</button>
+  <button (click)="percent()">➗</button>
+
+  <button (click)="handleDigit(7)">7</button>
+  <button (click)="handleDigit(8)">8</button>
+  <button (click)="handleDigit(9)">9</button>
+  <button (click)="multiply()">✖️</button>
+
+  <button (click)="handleDigit(4)">4</button>
+  <button (click)="handleDigit(5)">5</button>
+  <button (click)="handleDigit(6)">6</button>
+  <button (click)="add()">➕</button>
+
+  <button (click)="handleDigit(3)">3</button>
+  <button (click)="handleDigit(2)">2</button>
+  <button (click)="handleDigit(1)">1</button>
+  <button (click)="subtract()">➖</button>
+
+  <button class="zero" (click)="handleDigit(0)">0</button>
+  <button (click)="decimal()">٫</button>
+  <button (click)="calculate()">=</button>
+</main>

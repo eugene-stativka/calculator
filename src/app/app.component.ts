@@ -14,10 +14,8 @@ import { ReactiveComponent } from './reactive.component'
 
 @Component({
   selector: 'calc-root',
-  template: `
-    <main>{{ state.displayValue }}</main>
-  `,
-  styles: [],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent extends ReactiveComponent {
@@ -34,25 +32,32 @@ export class AppComponent extends ReactiveComponent {
           case CommandType.Reset:
             return new OperatorPendingCalculatorState(0)
 
-          case CommandType.Calculate: {
-            return prevState
-          }
-
-          case CommandType.Add:
-            return prevState.add()
-
-          case CommandType.Subtract:
+          case CommandType.ToggleNumberSign:
             return prevState
 
-          case CommandType.Multiply:
+          case CommandType.Percent:
             return prevState
 
           case CommandType.Divide:
             return prevState
 
-          case CommandType.Digit: {
+          case CommandType.Digit:
             return prevState.handleDigit(command.value)
-          }
+
+          case CommandType.Multiply:
+            return prevState
+
+          case CommandType.Subtract:
+            return prevState
+
+          case CommandType.Add:
+            return prevState.add()
+
+          case CommandType.Decimal:
+            return prevState
+
+          case CommandType.Calculate:
+            return prevState
 
           default:
             return assertNever(command)
@@ -70,11 +75,51 @@ export class AppComponent extends ReactiveComponent {
     })
   }
 
+  reset() {
+    this.command$.next({ type: CommandType.Reset })
+  }
+
+  toggleNumberSign() {
+    this.command$.next({ type: CommandType.Reset })
+  }
+
+  percent() {
+    this.command$.next({ type: CommandType.Percent })
+  }
+
+  divide() {
+    this.command$.next({ type: CommandType.Divide })
+  }
+
+  handleDigit(value: number) {
+    this.command$.next({ type: CommandType.Digit, value })
+  }
+
+  multiply() {
+    this.command$.next({ type: CommandType.Multiply })
+  }
+
+  subtract() {
+    this.command$.next({ type: CommandType.Subtract })
+  }
+
+  add() {
+    this.command$.next({ type: CommandType.Add })
+  }
+
+  decimal() {
+    this.command$.next({ type: CommandType.Decimal })
+  }
+
+  calculate() {
+    this.command$.next({ type: CommandType.Calculate })
+  }
+
   @HostListener('document:keypress', ['$event.keyCode'])
   handleKeyUp(keyCode: number) {
     switch (true) {
       case 48 <= keyCode && keyCode <= 57:
-        this.command$.next({ type: CommandType.Digit, value: keyCode - 48 })
+        this.handleDigit(keyCode - 48)
         break
 
       case keyCode === 42:
@@ -82,7 +127,7 @@ export class AppComponent extends ReactiveComponent {
         break
 
       case keyCode === 43:
-        this.command$.next({ type: CommandType.Add })
+        this.add()
         break
 
       case keyCode === 45:
