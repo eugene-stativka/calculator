@@ -1,25 +1,34 @@
 import { ChangeDetectionStrategy, Component, HostListener } from '@angular/core'
-import { Observable, Subject } from 'rxjs'
-import { distinctUntilChanged, map, scan, share } from 'rxjs/operators'
+import { Subject } from 'rxjs'
+import {
+  distinctUntilChanged,
+  map,
+  scan,
+  share,
+  startWith,
+} from 'rxjs/operators'
 import { assertNever } from './helpers'
 import { Command, CommandType } from './types'
 import { ICalculatorState, OperatorPendingCalculatorState } from './state'
+import { ReactiveComponent } from './reactive.component'
 
 @Component({
   selector: 'calc-root',
   template: `
-    <main>{{ displayValue$ | async }}</main>
+    <main>{{ state.displayValue }}</main>
   `,
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {
-  readonly displayValue$: Observable<number>
+export class AppComponent extends ReactiveComponent {
+  readonly state: Readonly<{ displayValue: number }>
 
   private readonly command$ = new Subject<Command>()
 
   constructor() {
-    const state = this.command$.pipe(
+    super()
+
+    const state$ = this.command$.pipe(
       scan<Command, ICalculatorState>((prevState, command) => {
         switch (command.type) {
           case CommandType.Reset:
@@ -52,10 +61,13 @@ export class AppComponent {
       share(),
     )
 
-    this.displayValue$ = state.pipe(
-      map(state => state.displayValue),
-      distinctUntilChanged(),
-    )
+    this.state = this.connect({
+      displayValue: state$.pipe(
+        map(state => state.displayValue),
+        startWith(0),
+        distinctUntilChanged(),
+      ),
+    })
   }
 
   @HostListener('document:keypress', ['$event.keyCode'])
