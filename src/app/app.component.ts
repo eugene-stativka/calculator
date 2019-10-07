@@ -45,7 +45,7 @@ export class AppComponent extends ReactiveComponent {
             return prevState.handleDigit(command.value)
 
           case CommandType.Multiply:
-            return prevState
+            return prevState.multiply()
 
           case CommandType.Subtract:
             return prevState
@@ -57,12 +57,13 @@ export class AppComponent extends ReactiveComponent {
             return prevState
 
           case CommandType.Calculate:
-            return prevState
+            return prevState.calculate()
 
           default:
             return assertNever(command)
         }
       }, new OperatorPendingCalculatorState(0)),
+      distinctUntilChanged(),
       share(),
     )
 

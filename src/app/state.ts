@@ -4,10 +4,10 @@ export interface ICalculatorState {
   readonly displayValue: number
   handleDigit(digit: number): ICalculatorState
   add(): ICalculatorState
-  // subtract()
-  // multiply()
-  // divide()
-  // calculate()
+  multiply(): ICalculatorState
+  // subtract(): ICalculatorState
+  // divide(): ICalculatorState
+  calculate(): ICalculatorState
 }
 
 export class OperatorPendingCalculatorState implements ICalculatorState {
@@ -24,8 +24,19 @@ export class OperatorPendingCalculatorState implements ICalculatorState {
     )
   }
 
+  multiply() {
+    return new SecondOperandPendingCalculatorState(
+      this.firstOperand,
+      CommandType.Multiply,
+    )
+  }
+
   handleDigit(digit: number) {
     return new OperatorPendingCalculatorState(this.firstOperand * 10 + digit)
+  }
+
+  calculate() {
+    return this
   }
 }
 
@@ -46,12 +57,23 @@ export class SecondOperandPendingCalculatorState implements ICalculatorState {
     )
   }
 
+  multiply() {
+    return new SecondOperandPendingCalculatorState(
+      this.firstOperand,
+      CommandType.Multiply,
+    )
+  }
+
   handleDigit(digit: number) {
     return new CalculationPendingCalculatorState(
       this.firstOperand,
       this.commandType,
       digit,
     )
+  }
+
+  calculate() {
+    return this
   }
 }
 
@@ -67,10 +89,11 @@ export class CalculationPendingCalculatorState implements ICalculatorState {
   }
 
   add() {
-    return new SecondOperandPendingCalculatorState(
-      this.firstOperand + this.secondOperand,
-      CommandType.Add,
-    )
+    return this.calculate(CommandType.Add)
+  }
+
+  multiply() {
+    return this.calculate(CommandType.Multiply)
   }
 
   handleDigit(digit: number) {
@@ -79,5 +102,28 @@ export class CalculationPendingCalculatorState implements ICalculatorState {
       this.commandType,
       this.secondOperand * 10 + digit,
     )
+  }
+
+  calculate(commandType: CommandType = this.commandType) {
+    const firstOperand = (() => {
+      switch (this.commandType) {
+        case CommandType.Add:
+          return this.firstOperand + this.secondOperand
+
+        case CommandType.Subtract:
+          return this.firstOperand - this.secondOperand
+
+        case CommandType.Multiply:
+          return this.firstOperand * this.secondOperand
+
+        case CommandType.Divide:
+          return this.firstOperand / this.secondOperand
+
+        default:
+          throw new Error(`Invalid command type ${this.commandType}`)
+      }
+    })()
+
+    return new SecondOperandPendingCalculatorState(firstOperand, commandType)
   }
 }
