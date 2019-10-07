@@ -8,7 +8,7 @@ import {
   startWith,
 } from 'rxjs/operators'
 import { assertNever } from './helpers'
-import { Command, CommandType } from './types'
+import { Command, CommandType, KeyCode } from './types'
 import { ICalculatorState, OperatorPendingCalculatorState } from './state'
 import { ReactiveComponent } from './reactive.component'
 
@@ -116,35 +116,47 @@ export class AppComponent extends ReactiveComponent {
   }
 
   @HostListener('document:keypress', ['$event.keyCode'])
-  handleKeyUp(keyCode: number) {
+  handleKeyPress(keyCode: number) {
     switch (true) {
-      case 48 <= keyCode && keyCode <= 57:
+      case KeyCode.Zero <= keyCode && keyCode <= KeyCode.Nine:
         this.handleDigit(keyCode - 48)
         break
 
-      case keyCode === 42:
-        this.command$.next({ type: CommandType.Multiply })
+      case keyCode === KeyCode.Star:
+        this.multiply()
         break
 
-      case keyCode === 43:
+      case keyCode === KeyCode.Plus:
         this.add()
         break
 
-      case keyCode === 45:
-        this.command$.next({ type: CommandType.Subtract })
+      case keyCode === KeyCode.Minus:
+        this.subtract()
         break
 
-      case keyCode === 47:
-        this.command$.next({ type: CommandType.Divide })
+      case keyCode === KeyCode.Slash:
+        this.divide()
         break
 
-      case keyCode === 27:
-        this.command$.next({ type: CommandType.Reset })
+      case keyCode === KeyCode.Percent:
+        this.percent()
         break
 
-      case keyCode === 13 || keyCode === 61:
-        this.command$.next({ type: CommandType.Calculate })
+      case keyCode === KeyCode.Coma:
+        this.decimal()
         break
+
+      case keyCode === KeyCode.Enter || keyCode === KeyCode.Equals:
+        this.calculate()
+        break
+    }
+  }
+
+  // Esc key on MacBook's TouchBar works only with keydown event
+  @HostListener('document:keydown', ['$event.keyCode'])
+  handleKeyDown(keyCode: number) {
+    if (keyCode === KeyCode.Esc) {
+      this.reset()
     }
   }
 }
