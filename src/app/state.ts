@@ -47,17 +47,14 @@ class OperatorPendingCalculatorState extends CalculatorState {
   }
 
   protected handleOperator(operator: OperatorType) {
-    return new SecondOperandPendingCalculatorState(this.displayValue, {
-      type: CommandType.Operator,
-      value: operator,
-    })
+    return new SecondOperandPendingCalculatorState(this.displayValue, operator)
   }
 }
 
 class SecondOperandPendingCalculatorState extends CalculatorState {
   constructor(
     public readonly displayValue: number,
-    private readonly command: Command,
+    private readonly operator: OperatorType,
   ) {
     super()
   }
@@ -67,79 +64,107 @@ class SecondOperandPendingCalculatorState extends CalculatorState {
   }
 
   protected handleDigit(digit: number) {
-    return new CalculationPendingCalculatorState(
-      this.displayValue,
-      this.command,
-      digit,
-    )
+    return new CalculationPendingCalculatorState({
+      displayValue: digit,
+      firstOperand: this.displayValue,
+      operator: this.operator,
+      secondOperand: digit,
+    })
   }
 
   protected handleOperator(operator: OperatorType) {
-    return new SecondOperandPendingCalculatorState(this.displayValue, {
-      type: CommandType.Operator,
-      value: operator,
-    })
+    return new SecondOperandPendingCalculatorState(this.displayValue, operator)
   }
 }
 
 class CalculationPendingCalculatorState extends CalculatorState {
   constructor(
-    private readonly firstOperand: number,
-    private readonly command: Command,
-    public readonly displayValue: number,
+    private readonly params: Readonly<{
+      displayValue: number
+      firstOperand: number
+      operator: OperatorType
+      secondOperand: number
+      prioritizedOperator?: OperatorType.Multiply | OperatorType.Divide
+    }>,
   ) {
     super()
   }
 
+  get displayValue(): number {
+    return this.params.displayValue
+  }
+
   protected handleDigit(digit: number) {
-    return new CalculationPendingCalculatorState(
-      this.firstOperand,
-      this.command,
-      this.displayValue * 10 + digit,
-    )
+    if (this.params.prioritizedOperator) {
+      return new CalculationPendingCalculatorState({
+        displayValue: digit,
+        firstOperand: this.params.firstOperand,
+        operator: this.params.operator,
+        secondOperand: doMath(
+          this.params.secondOperand,
+          this.params.prioritizedOperator,
+          digit,
+        ),
+      })
+    }
+
+    return new CalculationPendingCalculatorState({
+      displayValue: digit,
+      firstOperand: this.params.firstOperand,
+      operator: this.params.operator,
+      secondOperand: this.params.secondOperand * 10 + digit,
+    })
   }
 
   protected handleOperator(operator: OperatorType) {
     if (operator === OperatorType.Add || operator === OperatorType.Subtract) {
-      return this.handleCalculate({
-        type: CommandType.Operator,
-        value: operator,
-      })
+      return new SecondOperandPendingCalculatorState(
+        this.calculatedResult,
+        operator,
+      )
     }
-
-    return this.handleCalculate({
-      type: CommandType.Operator,
-      value: operator,
+    return new CalculationPendingCalculatorState({
+      displayValue: this.displayValue,
+      firstOperand: this.params.firstOperand,
+      operator: this.params.operator,
+      secondOperand: this.params.secondOperand,
+      prioritizedOperator: operator,
     })
   }
 
-  protected handleCalculate(command: Command = this.command) {
-    if (this.command.type !== CommandType.Operator) {
-      throw new Error(
-        'Invalid state! CalculationPendingCalculatorState should have only Operator command type',
-      )
-    }
+  protected handleCalculate() {
+    return new OperatorPendingCalculatorState(this.calculatedResult)
+  }
 
-    const firstOperand = (() => {
-      switch (this.command.value) {
-        case OperatorType.Add:
-          return this.firstOperand + this.displayValue
+  private get calculatedResult(): number {
+    return doMath(
+      this.params.firstOperand,
+      this.params.operator,
+      this.params.secondOperand,
+    )
+  }
+}
 
-        case OperatorType.Subtract:
-          return this.firstOperand - this.displayValue
+function doMath(
+  firstOperand: number,
+  operator: OperatorType,
+  secondOperand: number,
+) {
+  switch (operator) {
+    case OperatorType.Add:
+      return firstOperand + secondOperand
 
-        case OperatorType.Multiply:
-          return this.firstOperand * this.displayValue
+    case OperatorType.Subtract:
+      return firstOperand - secondOperand
 
-        case OperatorType.Divide:
-          return this.firstOperand / this.displayValue
+    case OperatorType.Multiply:
+      return firstOperand * secondOperand
 
-        default:
-          throw new Error(`Invalid operator type ${this.command.value}`)
-      }
-    })()
+    case OperatorType.Divide:
+      return firstOperand / secondOperand
 
-    return new SecondOperandPendingCalculatorState(firstOperand, command)
+    default:
+      throw new Error(`Invalid operator type ${operator}`)
   }
 }
 
