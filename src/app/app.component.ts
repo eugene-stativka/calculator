@@ -8,7 +8,7 @@ import {
   startWith,
 } from 'rxjs/operators'
 import { Command, CommandType, KeyCode, OperatorType } from './types'
-import { ICalculatorState, OperatorPendingCalculatorState } from './state'
+import { DEFAULT_CALCULATOR_STATE, CalculatorState } from './state'
 import { ReactiveComponent } from './reactive.component'
 
 @Component({
@@ -26,9 +26,9 @@ export class AppComponent extends ReactiveComponent {
     super()
 
     const state$ = this.command$.pipe(
-      scan<Command, ICalculatorState>(
+      scan<Command, CalculatorState>(
         (prevState, command) => prevState.handleCommand(command),
-        new OperatorPendingCalculatorState(0),
+        DEFAULT_CALCULATOR_STATE,
       ),
       distinctUntilChanged(),
       share(),
