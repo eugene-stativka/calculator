@@ -7,7 +7,6 @@ import {
   share,
   startWith,
 } from 'rxjs/operators'
-import { assertNever } from './helpers'
 import { Command, CommandType, KeyCode, OperatorType } from './types'
 import { ICalculatorState, OperatorPendingCalculatorState } from './state'
 import { ReactiveComponent } from './reactive.component'
@@ -27,33 +26,10 @@ export class AppComponent extends ReactiveComponent {
     super()
 
     const state$ = this.command$.pipe(
-      scan<Command, ICalculatorState>((prevState, command) => {
-        switch (command.type) {
-          case CommandType.Reset:
-            return new OperatorPendingCalculatorState(0)
-
-          case CommandType.ToggleNumberSign:
-            return prevState
-
-          case CommandType.Percent:
-            return prevState
-
-          case CommandType.Operator:
-            return prevState.handleOperator(command.value)
-
-          case CommandType.Digit:
-            return prevState.handleDigit(command.value)
-
-          case CommandType.Decimal:
-            return prevState
-
-          case CommandType.Calculate:
-            return prevState.calculate()
-
-          default:
-            return assertNever(command)
-        }
-      }, new OperatorPendingCalculatorState(0)),
+      scan<Command, ICalculatorState>(
+        (prevState, command) => prevState.handleCommand(command),
+        new OperatorPendingCalculatorState(0),
+      ),
       distinctUntilChanged(),
       share(),
     )

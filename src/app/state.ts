@@ -1,10 +1,9 @@
 import { Command, CommandType, OperatorType } from './types'
+import { assertNever } from './helpers'
 
 export interface ICalculatorState {
   readonly displayValue: number
-  handleDigit(digit: number): ICalculatorState
-  handleOperator(operatorType: OperatorType): ICalculatorState
-  calculate(): ICalculatorState
+  handleCommand(command: Command): ICalculatorState
 }
 
 export class OperatorPendingCalculatorState implements ICalculatorState {
@@ -14,19 +13,31 @@ export class OperatorPendingCalculatorState implements ICalculatorState {
     return this.firstOperand
   }
 
-  handleOperator(operatorType: OperatorType) {
-    return new SecondOperandPendingCalculatorState(this.firstOperand, {
-      type: CommandType.Operator,
-      value: operatorType,
-    })
-  }
+  handleCommand(command: Command): ICalculatorState {
+    switch (command.type) {
+      case CommandType.ToggleNumberSign:
+      case CommandType.Percent:
+      case CommandType.Decimal:
+      case CommandType.Calculate:
+        return this
 
-  handleDigit(digit: number) {
-    return new OperatorPendingCalculatorState(this.firstOperand * 10 + digit)
-  }
+      case CommandType.Reset:
+        return new OperatorPendingCalculatorState(0)
 
-  calculate() {
-    return this
+      case CommandType.Digit:
+        return new OperatorPendingCalculatorState(
+          this.firstOperand * 10 + command.value,
+        )
+
+      case CommandType.Operator:
+        return new SecondOperandPendingCalculatorState(this.firstOperand, {
+          type: CommandType.Operator,
+          value: command.value,
+        })
+
+      default:
+        return assertNever(command)
+    }
   }
 }
 
@@ -40,23 +51,33 @@ export class SecondOperandPendingCalculatorState implements ICalculatorState {
     return this.firstOperand
   }
 
-  handleOperator(operatorType: OperatorType) {
-    return new SecondOperandPendingCalculatorState(this.firstOperand, {
-      type: CommandType.Operator,
-      value: operatorType,
-    })
-  }
+  handleCommand(command: Command): ICalculatorState {
+    switch (command.type) {
+      case CommandType.ToggleNumberSign:
+      case CommandType.Percent:
+      case CommandType.Decimal:
+      case CommandType.Calculate:
+        return this
 
-  handleDigit(digit: number) {
-    return new CalculationPendingCalculatorState(
-      this.firstOperand,
-      this.command,
-      digit,
-    )
-  }
+      case CommandType.Reset:
+        return new OperatorPendingCalculatorState(0)
 
-  calculate() {
-    return this
+      case CommandType.Digit:
+        return new CalculationPendingCalculatorState(
+          this.firstOperand,
+          this.command,
+          command.value,
+        )
+
+      case CommandType.Operator:
+        return new SecondOperandPendingCalculatorState(this.firstOperand, {
+          type: CommandType.Operator,
+          value: command.value,
+        })
+
+      default:
+        return assertNever(command)
+    }
   }
 }
 
@@ -71,16 +92,46 @@ export class CalculationPendingCalculatorState implements ICalculatorState {
     return this.secondOperand
   }
 
-  handleOperator(operatorType: OperatorType) {
-    return this.calculate({ type: CommandType.Operator, value: operatorType })
-  }
+  handleCommand(command: Command): ICalculatorState {
+    switch (command.type) {
+      case CommandType.ToggleNumberSign:
+      case CommandType.Percent:
+      case CommandType.Decimal:
+        return this
 
-  handleDigit(digit: number) {
-    return new CalculationPendingCalculatorState(
-      this.firstOperand,
-      this.command,
-      this.secondOperand * 10 + digit,
-    )
+      case CommandType.Calculate:
+        return this.calculate()
+
+      case CommandType.Reset:
+        return new OperatorPendingCalculatorState(0)
+
+      case CommandType.Digit:
+        return new CalculationPendingCalculatorState(
+          this.firstOperand,
+          this.command,
+          this.secondOperand * 10 + command.value,
+        )
+
+      case CommandType.Operator: {
+        if (
+          command.value === OperatorType.Add ||
+          command.value === OperatorType.Subtract
+        ) {
+          return this.calculate({
+            type: CommandType.Operator,
+            value: command.value,
+          })
+        }
+
+        return this.calculate({
+          type: CommandType.Operator,
+          value: command.value,
+        })
+      }
+
+      default:
+        return assertNever(command)
+    }
   }
 
   calculate(command: Command = this.command) {
