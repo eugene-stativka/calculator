@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, HostListener } from '@angular/core'
+import { Meta, MetaDefinition, Title } from '@angular/platform-browser'
 import { Subject } from 'rxjs'
 import {
   distinctUntilChanged,
@@ -6,6 +7,8 @@ import {
   scan,
   share,
   startWith,
+  takeUntil,
+  tap,
 } from 'rxjs/operators'
 import { Command, CommandType, KeyCode, OperatorType } from './types'
 import { DEFAULT_CALCULATOR_STATE, CalculatorState } from './state'
@@ -22,7 +25,7 @@ export class AppComponent extends ReactiveComponent {
 
   private readonly command$ = new Subject<Command>()
 
-  constructor() {
+  constructor(meta: Meta, title: Title) {
     super()
 
     const state$ = this.command$.pipe(
@@ -41,6 +44,17 @@ export class AppComponent extends ReactiveComponent {
         distinctUntilChanged(),
       ),
     })
+
+    this.onInit$
+      .pipe(
+        takeUntil(this.onDestroy$),
+        tap(() => {
+          title.setTitle(APP_TITLE)
+
+          META_TAGS.forEach(tag => meta.updateTag(tag))
+        }),
+      )
+      .subscribe()
   }
 
   reset() {
@@ -137,3 +151,26 @@ export class AppComponent extends ReactiveComponent {
     }
   }
 }
+
+const APP_IMAGE_PATH = '/assets/logo.svg'
+
+const APP_TITLE = 'Calculator'
+
+const META_TAGS: ReadonlyArray<MetaDefinition> = [
+  { name: 'description', content: APP_TITLE },
+  { name: 'theme-color', content: '#C3002F' },
+  { name: 'twitter:card', content: 'summary' },
+  { name: 'twitter:image', content: APP_IMAGE_PATH },
+  { name: 'twitter:title', content: APP_TITLE },
+  { name: 'twitter:description', content: APP_TITLE },
+  { name: 'apple-mobile-web-app-capable', content: 'yes' },
+  {
+    name: 'apple-mobile-web-app-status-bar-style',
+    content: 'black-translucent',
+  },
+  { name: 'apple-mobile-web-app-title', content: APP_TITLE },
+  { name: 'apple-touch-startup-image', content: APP_IMAGE_PATH },
+  { property: 'og:title', content: APP_TITLE },
+  { property: 'og:description', content: APP_TITLE },
+  { property: 'og:image', content: APP_IMAGE_PATH },
+]
