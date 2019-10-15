@@ -15,9 +15,11 @@ export abstract class CalculatorState {
 
   handleCommand(command: Command): CalculatorState {
     switch (command.type) {
-      case CommandType.ToggleNumberSign:
       case CommandType.Percent:
         return this
+
+      case CommandType.ToggleNumberSign:
+        return this.handleToggleNumberSign()
 
       case CommandType.Decimal:
         return this.handleDecimal()
@@ -43,6 +45,7 @@ export abstract class CalculatorState {
   protected abstract handleDigit(digit: Digit): CalculatorState
   protected abstract handleDecimal(): CalculatorState
   protected abstract handleOperator(operator: OperatorType): CalculatorState
+  protected abstract handleToggleNumberSign(): CalculatorState
 }
 
 class OperatorPendingCalculatorState extends CalculatorState {
@@ -71,7 +74,15 @@ class OperatorPendingCalculatorState extends CalculatorState {
   protected handleOperator(operator: OperatorType) {
     return new SecondOperandPendingCalculatorState({
       ...this.params,
+      displayValue: this.params.displayValue || '0',
       operator,
+    })
+  }
+
+  protected handleToggleNumberSign() {
+    return new OperatorPendingCalculatorState({
+      ...this.params,
+      displayValue: (parseFloat(this.params.displayValue) * -1).toString(),
     })
   }
 }
@@ -94,7 +105,7 @@ class SecondOperandPendingCalculatorState extends CalculatorState {
     return new CalculationPendingCalculatorState({
       ...this.params,
       displayValue: digit,
-      firstOperand: this.params.displayValue.replace(',', '.'),
+      firstOperand: parseDisplayToOperandValue(this.params.displayValue),
       secondOperand: digit,
     })
   }
@@ -114,6 +125,18 @@ class SecondOperandPendingCalculatorState extends CalculatorState {
     return new SecondOperandPendingCalculatorState({
       ...this.params,
       operator,
+    })
+  }
+
+  protected handleToggleNumberSign(): CalculatorState {
+    const parsedDisplayValue = parseDisplayToOperandValue(
+      this.params.displayValue,
+    )
+
+    return new CalculationPendingCalculatorState({
+      ...this.params,
+      firstOperand: parsedDisplayValue,
+      secondOperand: (parseFloat(parsedDisplayValue) * -1).toString(),
     })
   }
 }
@@ -153,7 +176,7 @@ class CalculationPendingCalculatorState extends CalculatorState {
     const processedResult =
       decimalPart && decimalPart.length > 4 ? result.toFixed(4) : result
 
-    return processedResult.toString().replace('.', ',')
+    return parseOperandToDisplayValue(processedResult.toString())
   }
 
   protected handleDigit(digit: string) {
@@ -210,6 +233,40 @@ class CalculationPendingCalculatorState extends CalculatorState {
       displayValue: this.displayValue + ',',
     })
   }
+
+  protected handleToggleNumberSign() {
+    if (this.params.prioritizedOperator === undefined) {
+      const secondOperand = (
+        parseFloat(this.params.secondOperand) * -1
+      ).toString()
+
+      return new CalculationPendingCalculatorState({
+        ...this.params,
+        displayValue: parseOperandToDisplayValue(secondOperand),
+        secondOperand,
+      })
+    }
+
+    if (this.params.thirdOperand === undefined) {
+      const secondOperand = (
+        parseFloat(this.params.secondOperand) * -1
+      ).toString()
+
+      return new CalculationPendingCalculatorState({
+        ...this.params,
+        displayValue: parseOperandToDisplayValue(secondOperand),
+        thirdOperand: secondOperand,
+      })
+    }
+
+    const thirdOperand = (parseFloat(this.params.thirdOperand) * -1).toString()
+
+    return new CalculationPendingCalculatorState({
+      ...this.params,
+      displayValue: parseOperandToDisplayValue(thirdOperand),
+      thirdOperand,
+    })
+  }
 }
 
 function doMath(
@@ -236,6 +293,14 @@ function doMath(
     default:
       throw new Error(`Invalid operator type ${operator}`)
   }
+}
+
+function parseDisplayToOperandValue(displayValue: string): string {
+  return displayValue.replace(',', '.')
+}
+
+function parseOperandToDisplayValue(displayValue: string): string {
+  return displayValue.replace('.', ',')
 }
 
 export const DEFAULT_CALCULATOR_STATE = new OperatorPendingCalculatorState({

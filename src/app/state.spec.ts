@@ -121,4 +121,55 @@ describe('CalculatorState', () => {
       }).handleCommand({ type: CommandType.Reset }).displayValue,
     ).toBe('')
   })
+
+  it("should toggle first operand's sign", () => {
+    expect(
+      DEFAULT_CALCULATOR_STATE.handleCommand({
+        type: CommandType.Digit,
+        value: '2',
+      }).handleCommand({ type: CommandType.ToggleNumberSign }).displayValue,
+    ).toBe('-2')
+  })
+
+  it("should toggle second operand's sign", () => {
+    expect(
+      DEFAULT_CALCULATOR_STATE.handleCommand({
+        type: CommandType.Digit,
+        value: '2',
+      })
+        .handleCommand({ type: CommandType.Operator, value: OperatorType.Add })
+        .handleCommand({ type: CommandType.Digit, value: '2' })
+        .handleCommand({ type: CommandType.ToggleNumberSign })
+        .handleCommand({ type: CommandType.Calculate }).displayValue,
+    ).toBe('0')
+  })
+
+  it("should add second operand's sign on sign toggle after operator", () => {
+    expect(
+      DEFAULT_CALCULATOR_STATE.handleCommand({
+        type: CommandType.Operator,
+        value: OperatorType.Subtract,
+      })
+        .handleCommand({ type: CommandType.Digit, value: '2' })
+        .handleCommand({ type: CommandType.Calculate }).displayValue,
+    ).toBe('-2')
+  })
+
+  it("should toggle third operand's sign", () => {
+    expect(
+      DEFAULT_CALCULATOR_STATE.handleCommand({
+        type: CommandType.Digit,
+        value: '2',
+      })
+        .handleCommand({ type: CommandType.Operator, value: OperatorType.Add })
+        .handleCommand({ type: CommandType.Digit, value: '2' })
+        .handleCommand({
+          type: CommandType.Operator,
+          value: OperatorType.Multiply,
+        })
+        .handleCommand({ type: CommandType.Digit, value: '2' })
+        .handleCommand({ type: CommandType.ToggleNumberSign })
+        .handleCommand({ type: CommandType.Calculate }).displayValue,
+    ).toBe('-2')
+  })
 })

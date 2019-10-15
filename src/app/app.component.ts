@@ -62,7 +62,7 @@ export class AppComponent extends ReactiveComponent {
   }
 
   toggleNumberSign() {
-    this.command$.next({ type: CommandType.Reset })
+    this.command$.next({ type: CommandType.ToggleNumberSign })
   }
 
   percent() {
