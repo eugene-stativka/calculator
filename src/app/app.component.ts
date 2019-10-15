@@ -10,7 +10,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators'
-import { Command, CommandType, KeyCode, OperatorType } from './types'
+import { Command, CommandType, Digit, KeyCode, OperatorType } from './types'
 import { DEFAULT_CALCULATOR_STATE, CalculatorState } from './state'
 import { ReactiveComponent } from './reactive.component'
 
@@ -21,7 +21,7 @@ import { ReactiveComponent } from './reactive.component'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent extends ReactiveComponent {
-  readonly state: Readonly<{ displayValue: number }>
+  readonly state: Readonly<{ displayValue: string }>
 
   private readonly command$ = new Subject<Command>()
 
@@ -39,8 +39,8 @@ export class AppComponent extends ReactiveComponent {
 
     this.state = this.connect({
       displayValue: state$.pipe(
-        map(state => state.displayValue),
-        startWith(0),
+        map(state => state.displayValue || '0'),
+        startWith('0'),
         distinctUntilChanged(),
       ),
     })
@@ -76,7 +76,7 @@ export class AppComponent extends ReactiveComponent {
     })
   }
 
-  handleDigit(value: number) {
+  handleDigit(value: Digit) {
     this.command$.next({ type: CommandType.Digit, value })
   }
 
@@ -110,7 +110,7 @@ export class AppComponent extends ReactiveComponent {
   handleKeyPress(keyCode: number) {
     switch (true) {
       case KeyCode.Zero <= keyCode && keyCode <= KeyCode.Nine:
-        this.handleDigit(keyCode - 48)
+        this.handleDigit((keyCode - KeyCode.Zero).toString() as Digit)
         break
 
       case keyCode === KeyCode.Star:

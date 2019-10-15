@@ -15,12 +15,14 @@ export const enum OperatorType {
   Divide,
 }
 
+export type Digit = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+
 export type Command =
   | Readonly<{ type: CommandType.Reset }>
   | Readonly<{ type: CommandType.ToggleNumberSign }>
   | Readonly<{ type: CommandType.Percent }>
   | Readonly<{ type: CommandType.Operator; value: OperatorType }>
-  | Readonly<{ type: CommandType.Digit; value: number }>
+  | Readonly<{ type: CommandType.Digit; value: Digit }>
   | Readonly<{ type: CommandType.Decimal }>
   | Readonly<{ type: CommandType.Calculate }>
 
