@@ -14,7 +14,32 @@ main {
   font-size: 3em;
 }
 
+button {
+  --button-size: 70px;
+  width: var(--button-size);
+  height: var(--button-size);
+  background-color: #555;
+  color: white;
+  border-radius: var(--button-size);
+  border: none;
+  align-self: center;
+  justify-self: center;
+  font-size: 24px;
+}
+
+.operator-button {
+  background-color: orange;
+}
+
+.top-button {
+  color: var(--color-scheme-background);
+  background: var(--color-scheme-text-color);
+}
+
 .zero {
   grid-column-start: 1;
   grid-column-end: 3;
+  width: 152px;
+  text-align: left;
+  padding-left: 32px;
 }

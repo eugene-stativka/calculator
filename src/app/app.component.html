@@ -1,27 +1,27 @@
 <main>
   <div class="display-value">{{ state.displayValue }}</div>
 
-  <button (click)="reset()">AC</button>
-  <button (click)="toggleNumberSign()">±</button>
-  <button (click)="percent()">％</button>
-  <button (click)="divide()">➗</button>
+  <button (click)="reset()" class="top-button">AC</button>
+  <button (click)="toggleNumberSign()" class="top-button">±</button>
+  <button (click)="percent()" class="top-button">％</button>
+  <button (click)="divide()" class="operator-button">÷</button>
 
   <button (click)="handleDigit('7')">7</button>
   <button (click)="handleDigit('8')">8</button>
   <button (click)="handleDigit('9')">9</button>
-  <button (click)="multiply()">✖️</button>
+  <button (click)="multiply()" class="operator-button">x</button>
 
   <button (click)="handleDigit('4')">4</button>
   <button (click)="handleDigit('5')">5</button>
   <button (click)="handleDigit('6')">6</button>
-  <button (click)="add()">➕</button>
+  <button (click)="add()" class="operator-button">+</button>
 
   <button (click)="handleDigit('3')">3</button>
   <button (click)="handleDigit('2')">2</button>
   <button (click)="handleDigit('1')">1</button>
-  <button (click)="subtract()">➖</button>
+  <button (click)="subtract()" class="operator-button">-</button>
 
   <button class="zero" (click)="handleDigit('0')">0</button>
   <button (click)="decimal()">٫</button>
-  <button (click)="calculate()">=</button>
+  <button (click)="calculate()" class="operator-button">=</button>
 </main>
