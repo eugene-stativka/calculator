@@ -4,35 +4,56 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --prod"
+    "build": "ng build --prod",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --runInBand"
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "~9.0.0-next.8",
-    "@angular/common": "~9.0.0-next.8",
-    "@angular/compiler": "~9.0.0-next.8",
-    "@angular/core": "~9.0.0-next.8",
-    "@angular/forms": "~9.0.0-next.8",
-    "@angular/platform-browser": "~9.0.0-next.8",
-    "@angular/platform-browser-dynamic": "~9.0.0-next.8",
-    "@angular/pwa": "~0.900.0-next.8",
-    "@angular/router": "~9.0.0-next.8",
-    "@angular/service-worker": "~9.0.0-next.8",
+    "@angular/animations": "~9.0.0-next.10",
+    "@angular/common": "~9.0.0-next.10",
+    "@angular/compiler": "~9.0.0-next.10",
+    "@angular/core": "~9.0.0-next.10",
+    "@angular/forms": "~9.0.0-next.10",
+    "@angular/platform-browser": "~9.0.0-next.10",
+    "@angular/platform-browser-dynamic": "~9.0.0-next.10",
+    "@angular/pwa": "~0.900.0-next.9",
+    "@angular/router": "~9.0.0-next.10",
+    "@angular/service-worker": "~9.0.0-next.10",
     "rxjs": "~6.5.3",
     "tslib": "^1.10.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~0.900.0-next.6",
-    "@angular/cli": "~9.0.0-next.6",
-    "@angular/compiler-cli": "~9.0.0-next.8",
-    "@angular/language-service": "~9.0.0-next.8",
-    "@types/node": "~8.9.4",
+    "@angular-devkit/build-angular": "~0.900.0-next.9",
+    "@angular/cli": "~9.0.0-next.9",
+    "@angular/compiler-cli": "~9.0.0-next.10",
+    "@angular/language-service": "~9.0.0-next.10",
+    "@briebug/jest-schematic": "^2.1.0",
+    "@types/jest": "24.0.19",
+    "@types/node": "~10.14.0",
+    "codelyzer": "^5.1.2",
     "husky": "~4.0.0-beta.2",
+    "jest": "24.9.0",
     "lint-staged": "~9.4.0",
     "prettier": "~1.18.2",
+    "ts-jest": "^24.1.0",
     "ts-node": "~8.3.0",
     "tslint": "~5.18.0",
     "typescript": "~3.5.3"
+  },
+  "jest": {
+    "roots": [
+      "src"
+    ],
+    "transform": {
+      "^.+\\.(ts|js)$": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "<rootDir>/tsconfig.spec.json"
+      }
+    }
   },
   "lint-staged": {
     "*.{js,json,css,scss,md,ts,tsx,html}": [
@@ -47,7 +68,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "pre-push": "npm run build"
+      "pre-push": "npm run build && npm test"
     }
   }
 }
