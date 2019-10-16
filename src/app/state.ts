@@ -16,7 +16,7 @@ export abstract class CalculatorState {
   handleCommand(command: Command): CalculatorState {
     switch (command.type) {
       case CommandType.Percent:
-        return this
+        return this.handlePercent()
 
       case CommandType.ToggleNumberSign:
         return this.handleToggleNumberSign()
@@ -46,6 +46,7 @@ export abstract class CalculatorState {
   protected abstract handleDecimal(): CalculatorState
   protected abstract handleOperator(operator: OperatorType): CalculatorState
   protected abstract handleToggleNumberSign(): CalculatorState
+  protected abstract handlePercent(): CalculatorState
 }
 
 class OperatorPendingCalculatorState extends CalculatorState {
@@ -83,6 +84,15 @@ class OperatorPendingCalculatorState extends CalculatorState {
     return new OperatorPendingCalculatorState({
       ...this.params,
       displayValue: (parseFloat(this.params.displayValue) * -1).toString(),
+    })
+  }
+
+  protected handlePercent() {
+    return new OperatorPendingCalculatorState({
+      ...this.params,
+      displayValue: parseOperandToDisplayValue(
+        (parseFloat(this.params.displayValue) / 100).toString(),
+      ),
     })
   }
 }
@@ -139,6 +149,20 @@ class SecondOperandPendingCalculatorState extends CalculatorState {
       secondOperand: (parseFloat(parsedDisplayValue) * -1).toString(),
     })
   }
+
+  protected handlePercent(): CalculatorState {
+    const parsedDisplayValue = parseDisplayToOperandValue(
+      this.params.displayValue,
+    )
+
+    return new CalculationPendingCalculatorState({
+      ...this.params,
+      firstOperand: parsedDisplayValue,
+      secondOperand: parseOperandToDisplayValue(
+        (parseFloat(parsedDisplayValue) / 100).toString(),
+      ),
+    })
+  }
 }
 
 class CalculationPendingCalculatorState extends CalculatorState {
@@ -190,12 +214,12 @@ class CalculationPendingCalculatorState extends CalculatorState {
       })
     }
 
+    const displayValue = this.params.displayValue + digit
+
     return new CalculationPendingCalculatorState({
       ...this.params,
-      displayValue: this.params.displayValue + digit,
-      secondOperand: this.params.secondOperand.includes('.')
-        ? this.params.secondOperand + digit
-        : this.params.secondOperand + '.' + digit,
+      displayValue,
+      secondOperand: parseDisplayToOperandValue(displayValue),
     })
   }
 
@@ -265,6 +289,38 @@ class CalculationPendingCalculatorState extends CalculatorState {
       ...this.params,
       displayValue: parseOperandToDisplayValue(thirdOperand),
       thirdOperand,
+    })
+  }
+
+  protected handlePercent() {
+    if (
+      this.params.prioritizedOperator === undefined ||
+      this.params.thirdOperand === undefined
+    ) {
+      const secondOperand = (
+        (parseFloat(this.params.firstOperand) *
+          parseFloat(this.params.secondOperand)) /
+        100
+      ).toString()
+
+      return new CalculationPendingCalculatorState({
+        ...this.params,
+        displayValue: parseOperandToDisplayValue(secondOperand),
+        secondOperand,
+      })
+    }
+
+    const secondOperand = (
+      (parseFloat(this.params.secondOperand) *
+        parseFloat(this.params.thirdOperand)) /
+      100
+    ).toString()
+
+    return new CalculationPendingCalculatorState({
+      ...this.params,
+      displayValue: parseOperandToDisplayValue(secondOperand),
+      secondOperand,
+      thirdOperand: undefined,
     })
   }
 }

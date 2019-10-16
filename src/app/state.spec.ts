@@ -172,4 +172,58 @@ describe('CalculatorState', () => {
         .handleCommand({ type: CommandType.Calculate }).displayValue,
     ).toBe('-2')
   })
+
+  it('should handle 20 %', () => {
+    expect(
+      DEFAULT_CALCULATOR_STATE.handleCommand({
+        type: CommandType.Digit,
+        value: '2',
+      })
+        .handleCommand({ type: CommandType.Digit, value: '0' })
+        .handleCommand({ type: CommandType.Percent }).displayValue,
+    ).toBe('0,2')
+  })
+
+  it('should handle 20 - 10%', () => {
+    const stateAfterPercentApplied = DEFAULT_CALCULATOR_STATE.handleCommand({
+      type: CommandType.Digit,
+      value: '2',
+    })
+      .handleCommand({ type: CommandType.Digit, value: '0' })
+      .handleCommand({
+        type: CommandType.Operator,
+        value: OperatorType.Subtract,
+      })
+      .handleCommand({ type: CommandType.Digit, value: '1' })
+      .handleCommand({ type: CommandType.Digit, value: '0' })
+      .handleCommand({ type: CommandType.Percent })
+
+    expect(
+      stateAfterPercentApplied.handleCommand({ type: CommandType.Calculate })
+        .displayValue,
+    ).toBe('18')
+  })
+
+  it('should handle 2 + 2 * 10%', () => {
+    const stateAfterPercentApplied = DEFAULT_CALCULATOR_STATE.handleCommand({
+      type: CommandType.Digit,
+      value: '2',
+    })
+      .handleCommand({ type: CommandType.Operator, value: OperatorType.Add })
+      .handleCommand({ type: CommandType.Digit, value: '2' })
+      .handleCommand({
+        type: CommandType.Operator,
+        value: OperatorType.Multiply,
+      })
+      .handleCommand({ type: CommandType.Digit, value: '1' })
+      .handleCommand({ type: CommandType.Digit, value: '0' })
+      .handleCommand({ type: CommandType.Percent })
+
+    expect(stateAfterPercentApplied.displayValue).toBe('0,2')
+
+    expect(
+      stateAfterPercentApplied.handleCommand({ type: CommandType.Calculate })
+        .displayValue,
+    ).toBe('2,2')
+  })
 })
