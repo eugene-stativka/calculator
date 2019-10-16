@@ -10,12 +10,12 @@ main {
   display: flex;
   flex-direction: row-reverse;
   align-items: flex-end;
-  padding: 1rem;
-  font-size: 3em;
+  padding: 0.45em;
+  font-size: 4em;
 }
 
 button {
-  --button-size: 70px;
+  --button-size: 3em;
   width: var(--button-size);
   height: var(--button-size);
   background-color: #555;
@@ -24,7 +24,7 @@ button {
   border: none;
   align-self: center;
   justify-self: center;
-  font-size: 24px;
+  font-size: 1.5em;
 }
 
 .operator-button {
@@ -39,7 +39,41 @@ button {
 .zero {
   grid-column-start: 1;
   grid-column-end: 3;
-  width: 152px;
+  width: 7em;
   text-align: left;
-  padding-left: 32px;
+  padding-left: 1.2em;
+}
+
+@media only screen and (min-device-width: 768px) {
+  @media (orientation: portrait) {
+    button {
+      font-size: 4em;
+    }
+
+    .display-value {
+      font-size: 8em;
+      padding: 0.7em;
+    }
+  }
+
+  @media (orientation: landscape) {
+    main {
+      padding-left: 50%;
+      padding-right: 0.1em;
+    }
+
+    button {
+      font-size: 2.2em;
+    }
+
+    .display-value {
+      font-size: 5em;
+      padding-right: 0.7em;
+    }
+
+    .zero {
+      width: 8em;
+      padding-left: 1.3em;
+    }
+  }
 }
