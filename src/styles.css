@@ -5,6 +5,10 @@
   --color-scheme-text-color: var(--color-dark);
 }
 
+* {
+  touch-action: manipulation;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     --color-scheme-background: var(--color-light);

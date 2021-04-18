@@ -7,7 +7,8 @@
     "build": "ng build --prod",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:ci": "jest --runInBand"
+    "test:ci": "jest --runInBand",
+    "prepare": "husky install"
   },
   "private": true,
   "dependencies": {
@@ -18,10 +19,10 @@
     "@angular/forms": "~11.2.10",
     "@angular/platform-browser": "~11.2.10",
     "@angular/platform-browser-dynamic": "~11.2.10",
-    "@angular/pwa": "~0.900.0-next.9",
+    "@angular/pwa": "^0.1102.9",
     "@angular/router": "~11.2.10",
     "@angular/service-worker": "~11.2.10",
-    "rxjs": "~6.5.3",
+    "rxjs": "^6.6.7",
     "tslib": "^2.0.0"
   },
   "devDependencies": {
@@ -29,16 +30,16 @@
     "@angular/cli": "~11.2.9",
     "@angular/compiler-cli": "~11.2.10",
     "@angular/language-service": "~11.2.10",
-    "@briebug/jest-schematic": "^2.1.0",
-    "@types/jest": "24.0.19",
-    "@types/node": "~10.14.0",
+    "@briebug/jest-schematic": "^3.1.0",
+    "@types/jest": "^26.0.22",
+    "@types/node": "^14.14.41",
     "codelyzer": "^6.0.0",
-    "husky": "~4.0.0-beta.2",
-    "jest": "24.9.0",
-    "lint-staged": "~9.4.0",
-    "prettier": "~1.18.2",
-    "ts-jest": "^24.1.0",
-    "ts-node": "~8.3.0",
+    "husky": "^6.0.0",
+    "jest": "^26.6.3",
+    "lint-staged": "^10.5.4",
+    "prettier": "^2.2.1",
+    "ts-jest": "^26.5.5",
+    "ts-node": "^9.1.1",
     "tslint": "~6.1.0",
     "typescript": "~4.1.5"
   },
