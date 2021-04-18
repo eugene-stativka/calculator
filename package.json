@@ -22,7 +22,7 @@
     "@angular/router": "~11.2.10",
     "@angular/service-worker": "~11.2.10",
     "rxjs": "~6.5.3",
-    "tslib": "^1.10.0"
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1102.9",
