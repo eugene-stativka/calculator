@@ -1,4 +1,4 @@
-import { OnDestroy, OnInit, ɵmarkDirty as markDirty } from '@angular/core'
+import { OnDestroy, OnInit, ɵmarkDirty as markDirty, Directive } from '@angular/core'
 import { concat, from, Observable, ReplaySubject } from 'rxjs'
 import { mergeMap, takeUntil, tap } from 'rxjs/operators'
 
@@ -7,6 +7,7 @@ type ObservableDictionary<T> = Readonly<{ [P in keyof T]: Observable<T[P]> }>
 const OnInitSubject = Symbol('OnInitSubject')
 const OnDestroySubject = Symbol('OnDestroySubject')
 
+@Directive()
 export abstract class ReactiveComponent implements OnInit, OnDestroy {
   private [OnInitSubject] = new ReplaySubject<true>(1)
   private [OnDestroySubject] = new ReplaySubject<true>(1)
